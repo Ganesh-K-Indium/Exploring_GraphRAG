@@ -28,7 +28,7 @@ if not exist ".env" (
 
 REM Start backend
 echo 🔧 Starting Backend API (port 8000)...
-start "Backend API" cmd /k "venv\Scripts\activate && python src\api\server.py"
+start "Backend API" cmd /k "venv\Scripts\activate && python run_server.py"
 timeout /t 5 /nobreak > nul
 
 REM Start frontend

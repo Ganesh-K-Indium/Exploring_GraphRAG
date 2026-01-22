@@ -120,12 +120,13 @@ class PDFExtractor:
             "document_id": doc_id,
             "file_name": pdf_path.name,
             "metadata": metadata or {},
+            "sections": text_data.get("sections", {}),
             "text_data": text_data,
             "tables": table_data,
             "images": image_data,
             "chunks": chunks,
             "stats": {
-                "num_sections": len(text_data["sections"]),
+                "num_sections": len(text_data.get("sections", {})),
                 "num_tables": len(table_data),
                 "num_images": len(image_data),
                 "num_chunks": len(chunks)

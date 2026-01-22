@@ -107,34 +107,57 @@ class TextProcessor:
             text = page["text"]
             page_num = page["page_num"]
             
-            # Check for section markers
-            for marker in self.section_markers:
-                pattern = re.compile(marker, re.IGNORECASE)
-                if pattern.search(text):
-                    # Save previous section
-                    if current_section and section_text:
-                        sections[current_section] = {
-                            "text": "\n".join(section_text),
-                            "page_start": section_start_page,
-                            "page_end": page_num - 1
-                        }
+            # Look for section headers line by line
+            lines = text.split('\n')
+            for line in lines:
+                line_stripped = line.strip()
+                
+                # Check for section markers
+                for marker_pattern in self.section_markers:
+                    pattern = re.compile(marker_pattern, re.MULTILINE)
+                    match = pattern.search(line_stripped)
                     
-                    # Start new section
-                    current_section = marker.replace(".", "").replace(" ", "_")
-                    section_text = [text]
-                    section_start_page = page_num
-                    break
-            else:
-                # Continue current section
-                if current_section:
-                    section_text.append(text)
+                    if match:
+                        # Save previous section
+                        if current_section and section_text:
+                            sections[current_section] = {
+                                "text": "\n".join(section_text),
+                                "page_start": section_start_page,
+                                "page_end": page_num - 1,
+                                "title": current_section,
+                                "word_count": len("\n".join(section_text).split())
+                            }
+                        
+                        # Extract section title
+                        section_title = line_stripped[:100].strip()
+                        current_section = section_title
+                        section_text = []
+                        section_start_page = page_num
+                        break
+            
+            # Add text to current section
+            if current_section:
+                section_text.append(text)
         
         # Save last section
         if current_section and section_text:
             sections[current_section] = {
                 "text": "\n".join(section_text),
                 "page_start": section_start_page,
-                "page_end": pages[-1]["page_num"]
+                "page_end": pages[-1]["page_num"],
+                "title": current_section,
+                "word_count": len("\n".join(section_text).split())
+            }
+        
+        # If no sections found, create a default section
+        if not sections and pages:
+            all_text = "\n".join([p["text"] for p in pages])
+            sections["full_document"] = {
+                "text": all_text,
+                "page_start": 1,
+                "page_end": pages[-1]["page_num"],
+                "title": "Full Document",
+                "word_count": len(all_text.split())
             }
         
         logger.info(f"Detected {len(sections)} sections")
@@ -147,6 +170,7 @@ class TextProcessor:
     ) -> List[Dict]:
         """
         Chunk text with overlap for better context preservation.
+        Uses character-based chunking with safety limits for token counts.
         
         Args:
             text: Text to chunk
@@ -155,9 +179,12 @@ class TextProcessor:
         Returns:
             List of chunk dictionaries
         """
-        # Simple character-based chunking
-        # In production, use token-based chunking with tiktoken
         chunks = []
+        
+        # Use smaller chunk size to ensure we stay under 8192 token limit
+        # 1 token ≈ 4 characters, so 1024 chars ≈ 256 tokens
+        # This gives us safety margin for 8192 token limit
+        safe_chunk_size = min(self.chunk_size, 3000)  # Max ~750 tokens
         
         # Split by paragraphs first
         paragraphs = text.split("\n\n")
@@ -168,13 +195,31 @@ class TextProcessor:
         for para in paragraphs:
             para_length = len(para)
             
-            if current_length + para_length > self.chunk_size and current_chunk:
+            # If single paragraph is too long, split it
+            if para_length > safe_chunk_size:
+                # Split long paragraph into sentences
+                sentences = para.split('. ')
+                for sentence in sentences:
+                    if current_length + len(sentence) > safe_chunk_size and current_chunk:
+                        # Save current chunk
+                        chunk_text = "\n\n".join(current_chunk)
+                        chunks.append({
+                            "text": chunk_text,
+                            "length": len(chunk_text),
+                            "pages": [start_page]
+                        })
+                        current_chunk = []
+                        current_length = 0
+                    
+                    current_chunk.append(sentence)
+                    current_length += len(sentence)
+            elif current_length + para_length > safe_chunk_size and current_chunk:
                 # Save current chunk
                 chunk_text = "\n\n".join(current_chunk)
                 chunks.append({
                     "text": chunk_text,
                     "length": len(chunk_text),
-                    "pages": [start_page]  # Simplified page tracking
+                    "pages": [start_page]
                 })
                 
                 # Start new chunk with overlap

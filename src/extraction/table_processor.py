@@ -70,6 +70,13 @@ class TableProcessor:
                             if self.generate_descriptions:
                                 description = self._generate_table_description(df)
                             
+                            # Handle duplicate columns
+                            df_cols = df.columns.tolist()
+                            if len(df_cols) != len(set(df_cols)):
+                                # Make columns unique
+                                df.columns = [f"{col}_{i}" if df_cols.count(col) > 1 else col 
+                                            for i, col in enumerate(df_cols)]
+                            
                             table_dict = {
                                 "table_id": f"page{page_num}_table{table_idx}",
                                 "page": page_num,
@@ -107,8 +114,12 @@ class TableProcessor:
         
         # Strip whitespace from string columns
         for col in df.columns:
-            if df[col].dtype == object:
-                df[col] = df[col].astype(str).str.strip()
+            try:
+                col_dtype = str(df[col].dtype)
+                if col_dtype == 'object':
+                    df[col] = df[col].astype(str).str.strip()
+            except Exception:
+                continue
         
         return df
     
@@ -141,10 +152,13 @@ class TableProcessor:
             description_parts.append(f"Sample data: {sample}.")
         
         # Identify numeric columns and provide statistics
-        numeric_cols = df.select_dtypes(include=["int", "float"]).columns
-        if len(numeric_cols) > 0:
-            description_parts.append(
-                f"Contains numeric data in columns: {', '.join(numeric_cols)}."
-            )
+        try:
+            numeric_cols = df.select_dtypes(include=["int", "float"]).columns
+            if len(numeric_cols) > 0:
+                description_parts.append(
+                    f"Contains numeric data in columns: {', '.join(numeric_cols)}."
+                )
+        except Exception:
+            pass
         
         return " ".join(description_parts)

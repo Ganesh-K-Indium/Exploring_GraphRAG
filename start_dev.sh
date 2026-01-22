@@ -40,7 +40,7 @@ trap cleanup SIGINT SIGTERM
 # Start backend
 echo "🔧 Starting Backend API (port 8000)..."
 source venv/bin/activate
-python src/api/server.py &
+python run_server.py &
 BACKEND_PID=$!
 sleep 3
 

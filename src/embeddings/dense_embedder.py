@@ -155,13 +155,55 @@ class DenseEmbedder:
             raise
     
     def _encode_openai(self, texts: List[str]) -> List[List[float]]:
-        """Encode using OpenAI."""
+        """Encode using OpenAI with automatic batching for token limits."""
+        import tiktoken
+        
         try:
-            response = self.client.embeddings.create(
-                input=texts,
-                model=self.model
-            )
-            return [item.embedding for item in response.data]
+            # Get encoding for token counting
+            encoding = tiktoken.encoding_for_model("gpt-4o")
+            
+            # OpenAI embedding limit is 8191 tokens per request
+            max_tokens = 8000  # Safety margin
+            embeddings = []
+            current_batch = []
+            current_tokens = 0
+            
+            for text in texts:
+                # Count tokens in text
+                text_tokens = len(encoding.encode(text[:30000]))  # Limit text length
+                
+                # If single text exceeds limit, truncate it
+                if text_tokens > max_tokens:
+                    logger.warning(f"Text exceeds token limit ({text_tokens} tokens), truncating")
+                    # Truncate to max tokens
+                    tokens = encoding.encode(text)[:max_tokens]
+                    text = encoding.decode(tokens)
+                    text_tokens = max_tokens
+                
+                # Check if adding this text would exceed batch limit
+                if current_tokens + text_tokens > max_tokens and current_batch:
+                    # Process current batch
+                    response = self.client.embeddings.create(
+                        input=current_batch,
+                        model=self.model
+                    )
+                    embeddings.extend([item.embedding for item in response.data])
+                    current_batch = []
+                    current_tokens = 0
+                
+                current_batch.append(text)
+                current_tokens += text_tokens
+            
+            # Process remaining batch
+            if current_batch:
+                response = self.client.embeddings.create(
+                    input=current_batch,
+                    model=self.model
+                )
+                embeddings.extend([item.embedding for item in response.data])
+            
+            return embeddings
+            
         except Exception as e:
             logger.error(f"OpenAI encoding failed: {e}")
             raise

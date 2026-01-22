@@ -8,6 +8,11 @@ from loguru import logger
 import sys
 from pathlib import Path
 
+# Add project root to Python path
+project_root = str(Path(__file__).parent.parent.parent)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from src.config import settings, load_yaml_config
 from src.databases import Neo4jManager, QdrantManager
 from src.embeddings import EncoderManager
@@ -83,10 +88,19 @@ async def startup_event():
         except Exception as e:
             logger.warning(f"Qdrant collection initialization: {e}")
         
+        # Load retrieval config
+        retrieval_config = {
+            "rrf_k": 60,
+            "dense_weight": 0.4,
+            "sparse_weight": 0.3,
+            "colbert_weight": 0.3
+        }
+        
         # Initialize retrievers
         hybrid_retriever = HybridRetriever(
             qdrant_manager,
-            encoder_manager
+            encoder_manager,
+            config=retrieval_config
         )
         
         graph_retriever = GraphRetriever(neo4j_manager)
