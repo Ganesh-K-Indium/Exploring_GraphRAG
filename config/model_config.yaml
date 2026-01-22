@@ -1,0 +1,86 @@
+embeddings:
+  # Dense embeddings (semantic)
+  dense:
+    model: text-embedding-3-large
+    dimension: 3072
+    input_type_document: document
+    input_type_query: query
+    batch_size: 64
+    cache_enabled: true
+    cache_size: 1000
+  
+  # Sparse embeddings (keyword/lexical)
+  sparse:
+    model: naver/splade-cocondenser-ensembledistil
+    max_length: 512
+    batch_size: 32
+    device: cpu  # or cuda
+  
+  # Late interaction (ColBERT)
+  colbert:
+    model: colbert-ir/colbertv2.0
+    dimension: 128
+    max_length: 512
+    doc_maxlen: 300
+    query_maxlen: 32
+    batch_size: 16
+
+llm:
+  provider: openai
+  model: gpt-4o
+  max_tokens: 4096
+  temperature: 0.0
+  
+  # Relationship extraction prompt
+  relationship_extraction_prompt: |
+    Extract structured relationships between entities from the following financial text.
+    Focus on:
+    - Corporate structure (subsidiaries, joint ventures, partnerships)
+    - Business relationships (customers, suppliers, distributors)
+    - Financial relationships (investments, debt, equity)
+    - Competitive relationships
+    - Executive changes and organizational structure
+    - Risk dependencies
+    
+    Return JSON format:
+    {
+      "relationships": [
+        {
+          "source_entity": "entity name",
+          "source_type": "COMPANY|PERSON|LOCATION|PRODUCT|METRIC",
+          "target_entity": "entity name",
+          "target_type": "COMPANY|PERSON|LOCATION|PRODUCT|METRIC",
+          "relationship_type": "relationship type",
+          "confidence": 0.0-1.0,
+          "evidence": "supporting text snippet",
+          "temporal": "time period if mentioned"
+        }
+      ]
+    }
+
+ner:
+  model: en_core_web_sm
+  custom_patterns:
+    financial_metrics:
+      - "revenue"
+      - "EBITDA"
+      - "EPS"
+      - "net income"
+      - "gross profit"
+      - "operating income"
+      - "free cash flow"
+      - "total assets"
+      - "total liabilities"
+      - "shareholders equity"
+    
+    fiscal_periods:
+      - pattern: "Q[1-4]\\s*\\d{4}"
+        label: DATE
+      - pattern: "fiscal year \\d{4}"
+        label: DATE
+      - pattern: "FY\\d{2,4}"
+        label: DATE
+    
+    currency:
+      - pattern: "\\$[\\d,]+(?:\\.\\d{2})?\\s*(?:million|billion|thousand)?"
+        label: MONEY

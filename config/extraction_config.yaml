@@ -1,0 +1,68 @@
+pdf_extraction:
+  # Text extraction settings
+  text:
+    chunk_size: 1024
+    chunk_overlap: 128
+    section_markers:
+      - "ITEM 1."
+      - "ITEM 1A."
+      - "ITEM 1B."
+      - "ITEM 2."
+      - "ITEM 3."
+      - "ITEM 4."
+      - "ITEM 5."
+      - "ITEM 6."
+      - "ITEM 7."
+      - "ITEM 7A."
+      - "ITEM 8."
+      - "ITEM 9."
+      - "ITEM 9A."
+      - "ITEM 9B."
+      - "ITEM 10."
+      - "ITEM 11."
+      - "ITEM 12."
+      - "ITEM 13."
+      - "ITEM 14."
+      - "ITEM 15."
+  
+  # Table extraction settings
+  tables:
+    min_rows: 2
+    min_cols: 2
+    edge_tol: 50
+    use_pdfplumber: true
+    generate_descriptions: true
+  
+  # Image extraction settings
+  images:
+    min_size_kb: 50
+    max_size_kb: 5000
+    skip_types:
+      - logo
+      - header
+      - footer
+      - decoration
+    extract_charts: true
+    use_vision_api: true
+  
+  # Multimodal chunking
+  chunking:
+    preserve_context: true
+    max_chunk_tokens: 1024
+    create_mixed_chunks: true
+    link_nearby_elements: true
+    context_window: 2  # paragraphs before/after
+
+vision_api:
+  model: gpt-4o
+  max_tokens: 1024
+  temperature: 0.0
+  chart_analysis_prompt: |
+    Analyze this financial chart/graph and extract:
+    1. Chart type (bar, line, pie, etc.)
+    2. All data points and values
+    3. Axis labels and units
+    4. Key insights and trends
+    5. Time period covered
+    
+    Provide a detailed textual description suitable for embedding.

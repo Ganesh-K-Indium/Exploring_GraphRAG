@@ -1,0 +1,127 @@
+qdrant:
+  connection:
+    timeout: 60
+    prefer_grpc: false
+  
+  # Collection configuration
+  collections:
+    default_name: 10k_filings
+    
+    vectors_config:
+      dense:
+        size: 3072  # text-embedding-3-large
+        distance: Cosine
+        on_disk: false
+      
+      sparse:
+        on_disk: true
+        index:
+          on_disk: false
+    
+    # Quantization for memory efficiency
+    quantization:
+      scalar:
+        type: int8
+        quantile: 0.99
+        always_ram: true
+    
+    # HNSW parameters for dense vectors
+    hnsw_config:
+      m: 16
+      ef_construct: 100
+      full_scan_threshold: 10000
+    
+    # Optimizer config
+    optimizer_config:
+      deleted_threshold: 0.2
+      vacuum_min_vector_number: 1000
+      default_segment_number: 0
+      max_segment_size: 200000
+      memmap_threshold: 50000
+      indexing_threshold: 20000
+      flush_interval_sec: 5
+      max_optimization_threads: 1
+  
+  # Payload schema
+  payload:
+    indexed_fields:
+      - company_ticker
+      - filing_date
+      - section
+      - chunk_type
+      - fiscal_year
+      - quarter
+      - has_table
+      - has_chart
+      - entity_types
+    
+    stored_fields:
+      - chunk_id
+      - document_id
+      - text
+      - table_data
+      - image_path
+      - chart_type
+      - neo4j_node_ids
+      - entities
+      - page_numbers
+      - extraction_date
+  
+  # Search configuration
+  search:
+    # Hybrid search fusion
+    fusion:
+      default_method: rrf  # or weighted
+      rrf_k: 60
+      
+      # Weights for weighted fusion
+      default_weights:
+        dense: 0.4
+        sparse: 0.3
+        colbert: 0.3
+    
+    # Query type specific weights
+    query_strategies:
+      keyword_heavy:
+        sparse: 0.7
+        dense: 0.2
+        colbert: 0.1
+      
+      semantic_heavy:
+        sparse: 0.1
+        dense: 0.7
+        colbert: 0.2
+      
+      analytical_heavy:
+        sparse: 0.2
+        dense: 0.3
+        colbert: 0.5
+      
+      balanced:
+        sparse: 0.33
+        dense: 0.34
+        colbert: 0.33
+    
+    # Content type boosting
+    content_boost:
+      table_keywords:
+        - breakdown
+        - details
+        - by segment
+        - quarterly
+        - annual
+      table_boost: 0.4
+      
+      chart_keywords:
+        - trend
+        - over time
+        - growth
+        - chart
+        - graph
+      chart_boost: 0.3
+      
+      text_keywords:
+        - explain
+        - describe
+        - discuss
+      text_boost: 0.0
