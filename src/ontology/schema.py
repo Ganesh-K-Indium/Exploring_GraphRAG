@@ -8,26 +8,189 @@ from dataclasses import dataclass
 
 
 class NodeType(str, Enum):
-    """Graph node types."""
+    """Comprehensive node types for financial document analysis (10-K)."""
+    # Core Company Structure
     COMPANY = "Company"
+    SUBSIDIARY = "Subsidiary"
+    SEGMENT = "Segment"
+    BUSINESS_UNIT = "BusinessUnit"
+    JOINT_VENTURE = "JointVenture"
+    LEGAL_ENTITY = "LegalEntity"
+    
+    # Management & Governance
     PERSON = "Person"
-    LOCATION = "Location"
-    FINANCIAL_METRIC = "FinancialMetric"
+    EXECUTIVE = "Executive"
+    BOARD_MEMBER = "BoardMember"
+    COMMITTEE = "Committee"
+    AUDITOR = "Auditor"
+    
+    # Products & Services
     PRODUCT = "Product"
+    SERVICE = "Service"
+    PRODUCT_LINE = "ProductLine"
+    
+    # Customers & Markets
+    CUSTOMER = "Customer"
+    CUSTOMER_SEGMENT = "CustomerSegment"
+    LOCATION = "Location"
+    MARKET = "Market"
+    GEOGRAPHY = "Geography"
+    
+    # Financial Statements & Metrics
+    FINANCIAL_STATEMENT = "FinancialStatement"
+    LINE_ITEM = "LineItem"
+    ACCOUNT = "Account"
+    FINANCIAL_METRIC = "FinancialMetric"
+    KPI = "KPI"
+    RATIO = "Ratio"
+    
+    # Capital Structure
+    EQUITY = "Equity"
+    DEBT = "Debt"
+    CREDIT_FACILITY = "CreditFacility"
+    STOCK = "Stock"
+    SHARE_CLASS = "ShareClass"
+    
+    # Assets & Liabilities
+    ASSET = "Asset"
+    LIABILITY = "Liability"
+    INTANGIBLE_ASSET = "IntangibleAsset"
+    GOODWILL = "Goodwill"
+    PROPERTY = "Property"
+    
+    # Risk & Legal
     RISK_FACTOR = "RiskFactor"
+    LEGAL_CASE = "LegalCase"
+    REGULATION = "Regulation"
+    REGULATORY_BODY = "RegulatoryBody"
+    COMPLIANCE = "Compliance"
+    
+    # Contracts & Agreements
+    CONTRACT = "Contract"
+    LEASE = "Lease"
+    LICENSE = "License"
+    AGREEMENT = "Agreement"
+    
+    # Corporate Actions
+    ACQUISITION = "Acquisition"
+    MERGER = "Merger"
+    DIVESTITURE = "Divestiture"
+    RESTRUCTURING = "Restructuring"
+    
+    # Temporal & Data
+    DATE = "Date"
+    FISCAL_PERIOD = "FiscalPeriod"
     TABLE_DATA = "TableData"
     CHART_DATA = "ChartData"
 
 
 class RelationshipType(str, Enum):
-    """Graph relationship types."""
+    """Comprehensive relationship types for 10-K analysis."""
+    # Corporate Structure
     HAS_SUBSIDIARY = "HAS_SUBSIDIARY"
+    PARENT_OF = "PARENT_OF"
+    CONTROLS = "CONTROLS"
+    OWNS = "OWNS"
+    
+    # Segments & Operations
+    OPERATES_SEGMENT = "OPERATES_SEGMENT"
+    REPORTS_SEGMENT = "REPORTS_SEGMENT"
+    SEGMENT_GENERATES_REVENUE = "SEGMENT_GENERATES_REVENUE"
+    OPERATES_IN_MARKET = "OPERATES_IN_MARKET"
+    OPERATES_IN_GEOGRAPHY = "OPERATES_IN_GEOGRAPHY"
+    
+    # Management & Governance
     HAS_EXECUTIVE = "HAS_EXECUTIVE"
-    OPERATES_IN = "OPERATES_IN"
-    REPORTS_METRIC = "REPORTS_METRIC"
+    SERVES_AS = "SERVES_AS"
+    MANAGES = "MANAGES"
+    HAS_BOARD_MEMBER = "HAS_BOARD_MEMBER"
+    GOVERNS = "GOVERNS"
+    REPORTS_TO = "REPORTS_TO"
+    OVERSEES = "OVERSEES"
+    AUDITS = "AUDITS"
+    
+    # Products & Services
+    SELLS_PRODUCT = "SELLS_PRODUCT"
+    OFFERS_SERVICE = "OFFERS_SERVICE"
     MANUFACTURES = "MANUFACTURES"
-    COMPETES_WITH = "COMPETES_WITH"
+    PRODUCES = "PRODUCES"
+    DISTRIBUTES = "DISTRIBUTES"
+    
+    # Customers & Revenue
+    HAS_CUSTOMER = "HAS_CUSTOMER"
+    SERVES_CUSTOMER = "SERVES_CUSTOMER"
+    GENERATES_REVENUE_FROM = "GENERATES_REVENUE_FROM"
+    CONTRACT_WITH = "CONTRACT_WITH"
+    
+    # Financial Statements & Metrics
+    REPORTS_METRIC = "REPORTS_METRIC"
+    CONTAINS_LINE_ITEM = "CONTAINS_LINE_ITEM"
+    MEASURES_PERFORMANCE = "MEASURES_PERFORMANCE"
+    HAS_REVENUE = "HAS_REVENUE"
+    HAS_EARNINGS = "HAS_EARNINGS"
+    HAS_MARGIN = "HAS_MARGIN"
+    PROJECTS_FORECAST = "PROJECTS_FORECAST"
+    
+    # Capital Structure
+    ISSUES_DEBT = "ISSUES_DEBT"
+    ISSUES_EQUITY = "ISSUES_EQUITY"
+    HAS_CREDIT_FACILITY = "HAS_CREDIT_FACILITY"
+    TRADES_ON = "TRADES_ON"
+    HAS_TICKER = "HAS_TICKER"
+    HAS_SHARE_CLASS = "HAS_SHARE_CLASS"
+    DEBT_HAS_INTEREST_RATE = "DEBT_HAS_INTEREST_RATE"
+    FACILITY_IMPOSES_COVENANTS = "FACILITY_IMPOSES_COVENANTS"
+    
+    # Assets & Liabilities
+    OWNS_ASSET = "OWNS_ASSET"
+    OWES_LIABILITY = "OWES_LIABILITY"
+    ASSET_DEPRECIATES = "ASSET_DEPRECIATES"
+    HAS_GOODWILL = "HAS_GOODWILL"
+    HAS_INTANGIBLE = "HAS_INTANGIBLE"
+    
+    # Risk & Legal
     FACES_RISK = "FACES_RISK"
+    RISK_THREATENS = "RISK_THREATENS"
+    SUBJECT_TO_REGULATION = "SUBJECT_TO_REGULATION"
+    HAS_LEGAL_CASE = "HAS_LEGAL_CASE"
+    CREATES_LIABILITY = "CREATES_LIABILITY"
+    CONSTRAINS_OPERATIONS = "CONSTRAINS_OPERATIONS"
+    
+    # Contracts & Obligations
+    HAS_CONTRACT = "HAS_CONTRACT"
+    CONTRACT_GENERATES_REVENUE = "CONTRACT_GENERATES_REVENUE"
+    HAS_LEASE = "HAS_LEASE"
+    LEASE_REQUIRES_PAYMENT = "LEASE_REQUIRES_PAYMENT"
+    HAS_LICENSE = "HAS_LICENSE"
+    LICENSE_PERMITS_USE = "LICENSE_PERMITS_USE"
+    
+    # Corporate Actions
+    ACQUIRED = "ACQUIRED"
+    ACQUISITION_ADDS_REVENUE = "ACQUISITION_ADDS_REVENUE"
+    MERGED_WITH = "MERGED_WITH"
+    DIVESTED = "DIVESTED"
+    RESTRUCTURED = "RESTRUCTURED"
+    IMPAIRED = "IMPAIRED"
+    
+    # Geographic & Facilities
+    HEADQUARTERED_AT = "HEADQUARTERED_AT"
+    HAS_FACILITY = "HAS_FACILITY"
+    LOCATED_IN = "LOCATED_IN"
+    
+    # Competition
+    COMPETES_WITH = "COMPETES_WITH"
+    
+    # Regulatory & Compliance
+    FILES_WITH = "FILES_WITH"
+    INCORPORATED_IN = "INCORPORATED_IN"
+    COMPLIES_WITH = "COMPLIES_WITH"
+    
+    # Temporal
+    HAS_FISCAL_YEAR = "HAS_FISCAL_YEAR"
+    VALID_AS_OF = "VALID_AS_OF"
+    REPORTED_IN_PERIOD = "REPORTED_IN_PERIOD"
+    
+    # Data Sources
     DERIVED_FROM_TABLE = "DERIVED_FROM_TABLE"
     VISUALIZED_IN_CHART = "VISUALIZED_IN_CHART"
     MENTIONED_IN_SECTION = "MENTIONED_IN_SECTION"
@@ -94,7 +257,12 @@ class GraphSchema:
             NodeType.PRODUCT: ["name", "category"],
             NodeType.RISK_FACTOR: ["category", "description"],
             NodeType.TABLE_DATA: ["table_id", "summary"],
-            NodeType.CHART_DATA: ["chart_id", "chart_type", "description"]
+            NodeType.CHART_DATA: ["chart_id", "chart_type", "description"],
+            NodeType.BUSINESS_SEGMENT: ["name", "description"],
+            NodeType.STOCK: ["ticker", "exchange", "class"],
+            NodeType.REGULATORY_BODY: ["name", "jurisdiction"],
+            NodeType.DATE: ["year", "quarter", "period"],
+            NodeType.LEGAL_ENTITY: ["name", "jurisdiction", "type"]
         }
         return node_properties.get(node_type, [])
     
