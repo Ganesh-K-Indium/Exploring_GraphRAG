@@ -2,6 +2,21 @@
 
 A production-ready Graph RAG system that processes SEC 10-K reports with **multimodal extraction** (text, tables, images/charts) from PDFs. Combines graph-based ontology with multi-vector embeddings (dense, sparse, ColBERT) for comprehensive financial document analysis.
 
+## 🎨 User Interface
+
+### Modern React Frontend
+
+Access the system through a beautiful, professional web interface:
+
+**🏠 Home** - System overview with quick actions and feature highlights
+**🔍 Query** - Natural language interface with advanced filters and real-time results
+**📤 Ingest** - Drag-and-drop PDF upload with metadata input
+**📊 Entities** - Browse extracted entities from the knowledge graph
+**🏢 Company** - Detailed company profiles with metrics and relationships
+**ℹ️ About** - System architecture and technology stack
+
+Built with React 18, Vite, Tailwind CSS, and React Router for a fast, responsive experience.
+
 ## 🌟 Features
 
 ### Core Capabilities
@@ -130,7 +145,29 @@ Required API keys:
 
 ## 🚀 Quick Start
 
-### Option 1: Python API
+### Option 1: React UI (Recommended)
+
+**Start Backend:**
+```bash
+python src/api/server.py
+```
+
+**Start Frontend (in new terminal):**
+```bash
+cd frontend
+npm install  # First time only
+npm run dev
+```
+
+Open http://localhost:3000 for:
+- 🎨 Modern drag-and-drop document upload
+- 🔍 Natural language query interface
+- 📊 Entity and company browser
+- 📈 Real-time results with citations
+
+See `FRONTEND_SETUP.md` for detailed frontend documentation.
+
+### Option 2: Python API
 
 ```python
 from src.databases import Neo4jManager, QdrantManager
